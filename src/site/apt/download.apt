@@ -1,0 +1,33 @@
+ ---
+ Download
+ ---
+ Robin Helgelin, Michael Gerzabek
+ ---
+
+Availability
+
+  Currently, the library is only available from the Maven 2 repository http://www.localhost.nu/java/mvn.
+  
+  The group id is <<nu.localhost.tapestry>> and the artifact id is <<tapestry-spring-security>>.
+  
+  Configurating your project to use tapestry-spring-security is a small task,
+  just add the following to your project.
+  
+  Under \<dependencies\>, add:
+  
++----+
+  <dependency>
+    <groupId>nu.localhost.tapestry</groupId>
+    <artifactId>tapestry-spring-security</artifactId>
+    <version>2.0.0</version>
+  </dependency>
++----+
+
+  Under \<repositories\>, add:
+  
++----+
+  <repository>
+    <id>localhost.nu</id>
+    <url>http://www.localhost.nu/java/mvn</url>
+  </repository>
++----+

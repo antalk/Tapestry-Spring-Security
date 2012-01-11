@@ -1,0 +1,205 @@
+ -----
+ Configuring
+ -----
+ Robin Helgelin, Michael Gerzabek
+ -----
+
+Configuring tapestry-spring-security
+
+  Configuring your project to use tapestry-spring-security is almost as simple as dropping the jar in your projects classpath. You
+  can always look at the {{{http://www.localhost.nu/svn/public/tapestry-spring-security-sample}sample application}} to see how
+  things are solved there. The further explanations in this document are based on the configuration used in the sample application
+  {{{http://www.localhost.nu/svn/public/tapestry-spring-security-sample/src/main/java/nu/localhost/tapestry5/springsecuritytest/services/TestsecurityModule.java}TestsecurityModule.java}}. 
+
+* pom.xml
+
+  Currently tapestry-spring-security uses maven for dependencies. Configurating your project to use tapestry-spring-security is a small task,
+  just add the following to your project.
+  
+  Under \<dependencies\>, add:
+  
++----+
+  <dependency>
+    <groupId>nu.localhost.tapestry</groupId>
+    <artifactId>tapestry-spring-security</artifactId>
+    <version>2.0.0</version>
+  </dependency>
++----+
+
+  Under \<repositories\>, add:
+  
++----+
+  <repository>
+    <id>localhost.nu</id>
+    <url>http://www.localhost.nu/java/mvn</url>
+  </repository>
++----+
+
+* Implemented Interfaces
+  
+  Most Spring Security authentication providers take advantage of the <<<UserDetails>>> and <<<UserDetailsService>>> 
+  interfaces. The contract for this latter interface consists of a single method:
+
++----+
+  UserDetails loadUserByUsername(String username) 
+    throws UsernameNotFoundException, DataAccessException;
++----+
+
+  This is the point where you integrate your Tapestry 5 application with Spring Security by simply implementing 
+  those 2 interfaces.
+  
+  Configuring Tapestry 5 with your implementation of the <<<UserDetailsService>>> is straight forward. You either provide 
+  a static build or bind method in your AppModule.java. In this module we used the build approach. 
+  
++----+
+  public static UserDetailsService buildUserDetailsService( 
+    @Inject
+    PasswordEncoder encoder, 
+    @Inject
+    SaltSource salt ) {
+
+      return new MyUserDetailsService( encoder, salt );
+  }
++----+  
+  
+  See {{{http://www.localhost.nu/svn/public/tapestry-spring-security-sample/src/main/java/nu/localhost/tapestry5/springsecuritytest/services/internal/MyUserDetailsImpl.java}MyUserDetailsImpl.java}}
+  and {{{http://www.localhost.nu/svn/public/tapestry-spring-security-sample/src/main/java/nu/localhost/tapestry5/springsecuritytest/services/internal/MyUserDetailsService.java}MyUserDetailsService.java}}
+  to get an idea.
+  
+* ApplicationDefaults  
+  
+  All configuration symbols provided by tapestry-spring-security can be overriden using the usual Tapestry methods.
+  
+  In this example we change the the urls called when login failed and when a user has insufficient rights to view a page.
+  
++----+
+  public static void contributeApplicationDefaults(
+    MappedConfiguration<String, String> configuration ) {
+    
+      configuration.add( "spring-security.failure.url", "/loginpage/failed" );
+      configuration.add( "spring-security.accessDenied.url", "/forbidden" );
+  }
++----+
+
+  Find a {{{Configuration}complete list of configuration}} symbols at the end of this document.
+  
+* Authentication Provider
+
+  A Spring Security <<<AuthenticationProvider>>> asks a <<<UserDetailsService>>> to provide a <<<UserDetails>>> object. 
+  The resultant <<<UserDetails>>> object - and particularly the <<<GrantedAuthority[]>>>s contained within the <<<UserDetails>>> 
+  object - will be used when building the fully populated <<<Authentication>>> object.
+  
+  Spring Security ships with a convenient default implementation, the <<<DaoAuthenticationProvider>>>. This is the one we
+  used in the sample application. Of course you can implement your own provider given the usecase you have to implement.
+  
++----+
+  public static void contributeProviderManager(
+      OrderedConfiguration<AuthenticationProvider> configuration,
+      @InjectService( "DaoAuthenticationProvider" )
+      AuthenticationProvider daoAuthenticationProvider ) {
+
+      configuration.add( "daoAuthenticationProvider", daoAuthenticationProvider );
+  }
++----+
+
+* Alias Contributions
+
+  Currently there are 3 services you can override with an <<<AliasContribution>>>, the <<<SaltSourceService>>>, 
+  the <<<AuthenticationProcessingFilter>>>, and the <<<PasswordEncoder>>>. One usual override you
+  might want to take is the <<<PasswordEncoder>>>. By default the <<<PlainTextPasswordEncoder>>> is used.
+  The sample application makes use of <<<ShaPasswordEncoder>>> which is also part of the Spring Security
+  standard distribution. It's contributed like 
+  
++----+
+  public static void contributeAlias(
+      Configuration<AliasContribution<PasswordEncoder>> configuration ) {
+
+      configuration.add( AliasContribution.create(
+          PasswordEncoder.class,
+          new ShaPasswordEncoder() ) );
+  }
++----+
+
+* Contributions to the FilterSecurityInterceptor
+
+  To be complete there is one other configuration you might want to add, if 
+  you are about to secure static resources. To do so you simply contribute to the <<<FilterSecurityInterceptor>>>
+  which is in charge of checking requests with ant style regexp patterns. In the sample application 
+  there is a pdf that should be only visible for users with <<<ROLE_ADMIN>>> credentials. To do so a 
+  <<<RequestInvocationDefinition>>> needs to be declared and contributed.
+  
++----+
+  public static void contributeFilterSecurityInterceptor(
+      Configuration<RequestInvocationDefinition> configuration ) {
+
+      configuration.add( new RequestInvocationDefinition(
+          "/ltd.pdf",
+          "ROLE_ADMIN" ) );
+  }
++----+
+
+  You can also configure several roles at the same time.
+
++----+
+  public static void contributeFilterSecurityInterceptor(
+      Configuration<RequestInvocationDefinition> configuration ) {
+
+      configuration.add( new RequestInvocationDefinition(
+          "/another.pdf",
+          "ROLE_ADMIN, ROLE_USER" ) );
+  }
++----+
+
+
+  Apart from single items wildcards can be used also. This way whole page-categories can be secured:
+
++----+
+  public static void contributeFilterSecurityInterceptor(
+      Configuration<RequestInvocationDefinition> configuration ) {
+
+      configuration.add( new RequestInvocationDefinition(
+          "/loginArea/*",
+          "ROLE_USER" ) );
+  }
++----+
+
+  
+* {Configuration} Symbols
+
+  [spring-security.check.url]
+  	The internal check url used by Spring Security, Defaults to "/j_acegi_security_check".
+  
+  [spring-security.failure.url]
+  	Url redirected to when fails to login. Defaults to "/loginfailed".
+  
+  [spring-security.target.url]
+  	Url redirected to after a successful url if there is no "secured url" stored on session. Defaults to "/".
+  
+  [spring-security.afterlogout.url]
+  	Url redirected to after a successful logout. Defaults to "/".
+  	
+  [spring-security.accessDenied.url]
+    Defaults to "". If set to other than empty, the request dispatcher will "forward" to this specified error page view.
+    From Acegi documentation: The error page to use. Must begin with a "/" and is interpreted relative to the current
+    context root.
+
+  [spring-security.rememberme.key]
+    Key used by the remember me services. Defaults to "REMEMBERMEKEY".
+  
+  [spring-security.loginform.url]
+    Url redirected to when trying to use a secured class and/or method. Defaults to "/loginpage".
+  
+  [spring-security.force.ssl.login]
+    Used to indicate if redirect to loginform should also switch to secure channel. 
+    
+  [spring-security.anonymous.key]
+    Key used by the anonymous service. Defaults to "acegi_anonymous".
+  
+  [spring-security.anonymous.attribute]
+  	Attributes set on anonymous users. Defaults to "anonymous,ROLE_ANONYMOUS".
+  	
+  [spring-security.password.salt]
+  	Salt the password is salted with. Defaults to "DEADBEEF".
+
+  [spring-security.always.use.target.url]
+    Whether the <<<AuthenticationProcessingFilter>>> always should use the default target url. Defaults to "false".

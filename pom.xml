@@ -1,0 +1,308 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>nu.localhost.tapestry</groupId>
+    <artifactId>tapestry-spring-security</artifactId>
+    <packaging>jar</packaging>
+    <version>4.0.0-SNAPSHOT</version>
+    <name>Spring Security services for Tapestry</name>
+    <inceptionYear>2007</inceptionYear>
+    <description>Built for Tapestry 5.3.x</description>
+    <url>http://www.localhost.nu/java/tapestry-spring-security</url>
+	
+    <organization>
+        <name>Robin Helgelin</name>
+    </organization>
+	
+    <licenses>
+        <license>
+            <name>Apache Software License 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+	
+    <scm>
+        <connection>scm:svn:http://www.localhost.nu/svn/public/tapestry-spring-security</connection>
+        <url>http://www.localhost.nu/svn/public/tapestry-spring-security</url>
+    </scm>
+	
+    <developers>
+        <developer>
+            <id>lobbin</id>
+            <name>Robin Helgelin</name>
+            <email>robin@localhost.nu</email>
+            <roles>
+                <role>Project administrator</role>
+            </roles>
+            <timezone>CET</timezone>
+        </developer>
+        <developer>
+            <name>Ivan Dubrov</name>
+        </developer>
+        <developer>
+            <name>Michael Gerzabek</name>
+        </developer>
+        <developer>
+            <id>kkopruch</id>
+            <name>Klaus Kopruch</name>
+            <email>klaus.kopruch@materna.de</email>
+            <organization>MATERNA Gmbh</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <dependencies>
+		<!-- Tapestry dependencies -->
+        <dependency>
+            <groupId>org.apache.tapestry</groupId>
+            <artifactId>tapestry-core</artifactId>
+            <version>${tapestry-release-version}</version>
+
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tapestry</groupId>
+            <artifactId>tapestry-ioc</artifactId>
+            <version>${tapestry-release-version}</version>
+
+        </dependency>
+		
+		<!-- Spring security -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>${spring-security-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+            <version>${spring-security-version}</version>
+        </dependency>
+        
+        <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-web</artifactId>
+		  <version>${spring-release-version}</version>
+        </dependency>
+
+		<!-- Servlets API -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+        </dependency>
+		
+		<!-- Apache Commons -->
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.4</version>
+        </dependency>
+		
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng-release-version}</version>
+            <classifier>jdk15</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+        	<groupId>org.apache.tapestry</groupId>
+        	<artifactId>tapestry-test</artifactId>
+        	<version>${tapestry-release-version}</version>
+        	<scope>test</scope>
+        </dependency>
+    </dependencies>
+	
+    <build>
+        <finalName>tapestry5.3-springsecurity</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <optimize>true</optimize>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <compress>true</compress>
+                        <index>true</index>
+                        <manifestEntries>
+                            <Tapestry-Module-Classes>nu.localhost.tapestry5.springsecurity.services.SecurityModule</Tapestry-Module-Classes>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>${cobertura-plugin-version}</version>
+                <executions>
+                    <execution>
+                        <id>clean</id>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+	
+
+	    <!-- beta 3 for ftp directory support -->
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ftp</artifactId>
+                <version>1.0-beta-4</version>
+            </extension>
+        </extensions>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.tapestry</groupId>
+                <artifactId>tapestry-component-report</artifactId>
+                <version>${tapestry-release-version}</version>
+                <configuration>
+                    <rootPackage>nu.localhost.tapestry5.springsecurity</rootPackage>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <linksource>true</linksource>
+                    <links>
+                        <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
+                        <link>http://java.sun.com/j2ee/1.4/docs/api/</link>
+                        <link>http://commons.apache.org/logging/apidocs/</link>
+                        <link>http://static.springframework.org/spring-security/site/apidocs/</link>
+                        <link>http://tapestry.apache.org/tapestry5/apidocs/</link>
+                    </links>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>${cobertura-plugin-version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>dependencies</report>
+                            <report>license</report>
+                            <report>scm</report>
+                            <report>project-team</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <repositories>
+        <repository>
+            <id>tapestry.snapshots</id>
+            <url>http://tapestry.formos.com/maven-snapshot-repository</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+
+        <repository>
+            <id>spring-milestone</id>
+            <name>Spring Portfolio Milestone Repository</name>
+            <url>http://s3.amazonaws.com/maven.springframework.org/milestone</url>
+        </repository>
+    </repositories>
+  
+    <pluginRepositories>
+        <pluginRepository>
+            <id>tapestry.snapshots</id>
+            <url>http://tapestry.formos.com/maven-snapshot-repository</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>codehaus.snapshots</id>
+            <url>http://snapshots.repository.codehaus.org</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <distributionManagement>
+        <site>
+            <id>tapestry.spring.security.site</id>
+            <url>ftp://surr.localhost.nu/www.localhost.nu/java/tapestry-spring-security</url>
+        </site>
+        <repository>
+            <id>tapestry.spring.security</id>
+            <url>ftp://surr.localhost.nu/www.localhost.nu/java/mvn</url>
+        </repository>
+        <snapshotRepository>
+            <id>tapestry.spring.security.snapshot</id>
+            <url>ftp://surr.localhost.nu/www.localhost.nu/java/mvn-snapshot</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <properties>
+    	<tapestry-release-version>5.3.1</tapestry-release-version>
+    	<spring-security-version>3.0.2.RELEASE</spring-security-version>
+
+        <spring-release-version>3.0.2.RELEASE</spring-release-version>
+        <cobertura-plugin-version>2.1</cobertura-plugin-version>
+        <testng-release-version>5.1</testng-release-version>
+    </properties>
+</project>

@@ -1,0 +1,40 @@
+ -----
+ tapestry-spring-security (former tapestry-acegi)
+ -----
+ Robin Helgelin, Michael Gerzabek
+ -----
+
+Description
+
+  This library is an extension to {{{http://tapestry.apache.org/tapestry5/}Tapestry 5}} that provides
+  {{{http://static.springframework.org/spring-security/site/} Spring Security}} (former Acegi Security) integration.  
+  The tapestry-spring-security module provides a number features making it easy to use Spring Security within Tapestry.
+  
+  Parts of this website is borrowed from James Carman's {{{http://www.carmanconsulting.com/tapestry-acegi}tapestry-acegi}}
+  website.
+  
+News
+
+  * 2009-07-16: Release <<2.1.0>> is available. Upgraded to Tapestry 5.1.0.5.
+
+  * 2008-12-15: Release <<2.0.1>> is available. Upgraded to Tapestry 5.0 final (5.0.18) and Spring Security 2.0.4.
+
+  * 2008-07-30: Release <<2.0.0>> is now available. New AccessDeniedHandler allows Tapestry to serve a forbidden page.
+    Static resources can be secured. 
+
+  * 2008-05-23: Release <<1.1.0>> is now available. Initial support for secure methods. Add supports for overriding the
+    AuthenticationProcessingFilter and fixes a few bugs.
+
+  * 2008-02-15: Release <<1.0.3>> is now available. This is not just a release for staying up to date with the latest
+    {{{http://tapestry.apache.org/tapestry5}Tapestry}} <<5.0.10>> release. This release also adds a few @Marker annotations
+    to work better together with {{{http://tapestry.apache.org/tapestry5/tapestry-spring}tapestry-spring}}, and also adds
+    support for Acegi access denied URL.
+
+  * 2007-10-26: Release <<1.0.2>> is now available. This is a service release for staying up to date with the latest
+    {{{http://tapestry.apache.org/tapestry5}Tapestry}} <<5.0.6>> release.
+
+  * 2007-08-29: Release <<1.0.1>> is now available. News are two new components. See
+    {{{component-parameters.html}component page}} for more information.
+    
+  * 2007-08-15: Release <<1.0.0>> is now available from the Maven repository. See the {{{download.html}download}} page for
+    more information.

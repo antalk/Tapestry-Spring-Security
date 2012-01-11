@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- 
+ enable debug logging for bowser by specifying the system property -Dlog4.configuration=debug-log4j.xml
+ -->
+
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<appender name="ConsoleAppender" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%5p %d{ISO8601} %c - %m%n" />
+		</layout>
+	</appender>
+	
+<category name="org.apache.tapestry5">
+    	<priority value="INFO"/>
+   	</category>
+   	
+   	<category name="tapestry.transformer">
+    	<priority value="INFO"/>
+   	</category>
+
+
+
+	<root>
+		<appender-ref ref="ConsoleAppender" />
+	</root>
+
+</log4j:configuration> 
+    

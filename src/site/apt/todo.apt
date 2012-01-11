@@ -1,0 +1,32 @@
+ -----
+ TODO
+ -----
+ Robin Helgelin, Michael Gerzabek
+ -----
+
+Todo list
+
+  Things that needs to be taken care of :-).
+  
+    * Write tests
+    
+    * Thread safety on our FilterWrappers?
+    
+    * Use a MappedConfiguration to define contributions to <<<FilterSecurityInterceptor>>>
+    
+    * Document code
+    
+    * Do we really need to extend the <<<SaltSourceService>>> to be able to make it aliasable?  
+    
+    * When a user get's redirected from an Authorization failure the first time this happens 
+      an exception report is logged. Since this is anticipated it should be an info rather than
+      an error
+      
+    * Add components that will make life easier
+    
+    	* component to show user data
+    	
+    	* component to show which Authority is required for a requested page/ method. Useful 
+    	  in a forbidden page. 
+    	
+    	* What else? 

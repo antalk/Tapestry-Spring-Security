@@ -1,0 +1,48 @@
+ -----
+ Securing pages
+ -----
+ Robin Helgelin, Michael Gerzabek
+ -----
+
+Securing pages
+
+  NOTE: If you are using the default role voter from Spring Security, all roles needs to begin with "ROLE_". See
+  {{{http://static.springframework.org/spring-security/site/apidocs/org/springframework/security/vote/RoleVoter.html}Spring Security documenation}} 
+  for more information.
+
+  In order to secure a page, all you have to do is annotate the page class with the Acegi @Secured
+  annotation:
+
++----+
+@Secured("ROLE_ADMIN")
+public class AdminPage
+{
+}
++----+
+
+Secure Listener Methods
+
+  In order to secure a listener method, all you have to do is annotate the listener method with the
+  Acegi @Secured annotation:
+
++----+
+@Secured("ROLE_ADMIN")
+public void doSomeAdminTask()
+{
+}
++----+
+
+Securing Static Resources
+
+  In oder to secure a static resource contribute to the <<<FilterSecurityInterceptor>>>. You can define the 
+  needed Authorities via a simple list of komma separated Strings.
+  
++----+
+  public static void contributeFilterSecurityInterceptor( 
+    Configuration<RequestInvocationDefinition> configuration ) {
+  
+    configuration.add( 
+      new RequestInvocationDefinition( "/ltd.pdf", "ROLE_ADMIN" ) );
+  }
++----+
+  
