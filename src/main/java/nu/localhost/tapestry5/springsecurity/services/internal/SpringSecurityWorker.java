@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.tapestry5.annotations.BeginRender;
 import org.apache.tapestry5.annotations.CleanupRender;
 import org.apache.tapestry5.model.MutableComponentModel;
+import org.apache.tapestry5.plastic.FieldHandle;
 import org.apache.tapestry5.plastic.MethodAdvice;
 import org.apache.tapestry5.plastic.MethodInvocation;
 import org.apache.tapestry5.plastic.PlasticClass;
@@ -82,8 +83,9 @@ public class SpringSecurityWorker implements ComponentClassTransformWorker2 {
 //                org.springframework.security.access.intercept.InterceptorStatusToken.class.getName(),
 //                "_$token" );
 
-        final PlasticField tokenFieldInstance = plasticClass.introduceField(InterceptorStatusToken.class,"_$token");
-
+        final FieldHandle tokenHandle = plasticClass.introduceField(InterceptorStatusToken.class,"_$token").getHandle();
+        
+        
         // Extend class
         PlasticMethod beginRenderMethod = plasticClass.introduceMethod(TransformConstants.BEGIN_RENDER_DESCRIPTION);
 
@@ -101,7 +103,7 @@ public class SpringSecurityWorker implements ComponentClassTransformWorker2 {
                 // tokenField + " = " + interField   + ".checkBefore(" + configField + ");"
 //                ConfigAttributeHolder confAttrHolder = (ConfigAttributeHolder) configFieldInstance.read(invocation.getInstance());
                 InterceptorStatusToken statusTokenVal = secChecker.checkBefore(confAttrHolder);
-                tokenFieldInstance.getHandle().set(invocation.getInstance(), statusTokenVal);
+                tokenHandle.set(invocation.getInstance(), statusTokenVal);
             }
         };
 
@@ -120,7 +122,7 @@ public class SpringSecurityWorker implements ComponentClassTransformWorker2 {
         	    invocation.proceed();
 
                 // interField + ".checkAfter(" + tokenField + ", null);
-                InterceptorStatusToken tokenFieldValue = (InterceptorStatusToken) tokenFieldInstance.getHandle().get(invocation.getInstance());
+                InterceptorStatusToken tokenFieldValue = (InterceptorStatusToken) tokenHandle.get(invocation.getInstance());
                 secChecker.checkAfter(tokenFieldValue, null);
             }
         };

@@ -322,7 +322,7 @@ public class SecurityModule {
     }
 
     @Marker( SpringSecurityServices.class )
-    public static AuthenticationManager buildProviderManager( final List<AuthenticationProvider> providers )
+    public static AuthenticationManager buildAuthenticationManager( final List<AuthenticationProvider> providers )
             throws Exception {
 
         ProviderManager manager = new ProviderManager();
@@ -365,7 +365,7 @@ public class SecurityModule {
         return provider;
     }
 
-    public final void contributeProviderManager(
+    public final void contributeAuthenticationManager(
             final OrderedConfiguration<AuthenticationProvider> configuration,
             @InjectService( "AnonymousAuthenticationProvider" ) final AuthenticationProvider anonymousAuthenticationProvider,
             @InjectService( "RememberMeAuthenticationProvider" ) final AuthenticationProvider rememberMeAuthenticationProvider ) {

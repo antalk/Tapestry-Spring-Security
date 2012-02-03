@@ -44,7 +44,7 @@ public class SecuredPageTest extends TestCase {
         HttpServletResponse mockResponse = MockFactory.getInstance().getMockedServletResponse();
         
         
-        EasyMock.expect(mockRequest.getCookies()).andReturn(new Cookie[] {}).anyTimes();
+        EasyMock.expect(mockRequest.getCookies()).andReturn(new Cookie[] {}).atLeastOnce();
         EasyMock.expect(mockRequest.getHeaderNames()).andReturn(new Vector<String>().elements());
         EasyMock.expect(mockRequest.getLocales()).andReturn(new Vector<String>().elements());
         EasyMock.expect(mockRequest.getParameterMap()).andReturn(new HashMap<String, Object>());
