@@ -17,9 +17,9 @@
 
 package nu.localhost.tapestry5.springsecurity.components;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -27,7 +27,7 @@ import org.apache.tapestry5.Block;
 import org.apache.tapestry5.annotations.Parameter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 
@@ -82,19 +82,18 @@ public class IfRole {
         currentUser = SecurityContextHolder.getContext().getAuthentication();
 
         if (null == currentUser) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         if ((null == currentUser.getAuthorities()) || (currentUser.getAuthorities().size() < 1)) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
-        Collection<GrantedAuthority> granted = (Collection<GrantedAuthority>) currentUser.getAuthorities();
-        return granted;
+        return (Collection<GrantedAuthority>) currentUser.getAuthorities();
     }
 
-    private Set authoritiesToRoles(Collection<GrantedAuthority> c) {
-        Set target = new HashSet();
+    private Collection<GrantedAuthority> authoritiesToRoles(Collection<GrantedAuthority> c) {
+    	Collection<GrantedAuthority> target = new ArrayList<GrantedAuthority>();
 
         for (final GrantedAuthority authority : c) {
             
@@ -104,15 +103,14 @@ public class IfRole {
                     + authority.toString());
             }
 
-            target.add(authority.getAuthority());
+            target.add(authority);
         }
 
         return target;
     }
 
-    @SuppressWarnings("unchecked")
-    private Set parseAuthoritiesString(String authorizationsString) {
-        final Set requiredAuthorities = new HashSet();
+    private Collection<GrantedAuthority> parseAuthoritiesString(String authorizationsString) {
+        final Collection<GrantedAuthority> requiredAuthorities = new ArrayList<GrantedAuthority>();
         final String[] authorities = StringUtils.commaDelimitedListToStringArray(authorizationsString);
 
         for (int i = 0; i < authorities.length; i++) {
@@ -126,9 +124,8 @@ public class IfRole {
             role = StringUtils.replace(role, "\n", "");
             role = StringUtils.replace(role, "\f", "");
 
-            requiredAuthorities.add(new SimpleGrantedAuthority(role));
+            requiredAuthorities.add(new GrantedAuthorityImpl(role));
         }
-
         return requiredAuthorities;
     }
 
@@ -141,7 +138,7 @@ public class IfRole {
      * We need to manually iterate over both collections, because the granted
      * authorities might not implement {@link Object#equals(Object)} and
      * {@link Object#hashCode()} in the same way as {@link
-     * SimpleGrantedAuthority}, thereby invalidating {@link
+     * GrantedAuthority}, thereby invalidating {@link
      * Collection#retainAll(java.util.Collection)} results.
      * </p>
      * 
@@ -163,17 +160,17 @@ public class IfRole {
      *            <strong>not</strong> return <code>null</code> from {@link
      *            org.springframework.security.GrantedAuthority#getAuthority()}.
      * @param required
-     *            A {@link Set} of {@link SimpleGrantedAuthority}s that have been
+     *            A {@link Set} of {@link GrantedAuthority}s that have been
      *            built using ifAny, ifAll or ifNotGranted.
      * 
      * @return A set containing only the common authorities between <var>granted</var>
      *         and <var>required</var>.
      * 
      */
-    @SuppressWarnings("unchecked")
-    private Set<GrantedAuthority> retainAll(final Collection granted, final Set required) {
-        Set grantedRoles = authoritiesToRoles(granted);
-        Set requiredRoles = authoritiesToRoles(required);
+    
+    private Collection<GrantedAuthority> retainAll(final Collection<GrantedAuthority> granted, final Collection<GrantedAuthority> required) {
+    	Collection<GrantedAuthority> grantedRoles = authoritiesToRoles(granted);
+    	Collection<GrantedAuthority> requiredRoles = authoritiesToRoles(required);
         grantedRoles.retainAll(requiredRoles);
 
         return rolesToAuthorities(grantedRoles, granted);
@@ -185,14 +182,16 @@ public class IfRole {
      * @return a Set of Authorities corresponding to the roles in the grantedRoles
      * that are also in the granted Set of Authorities
      */
-    @SuppressWarnings("unchecked")
-    private Set rolesToAuthorities(Set grantedRoles, Collection granted) {
-        Set target = new HashSet();
+    private Collection<GrantedAuthority> rolesToAuthorities(Collection<GrantedAuthority> grantedRoles, Collection<GrantedAuthority> granted) {
+    	Collection<GrantedAuthority> target = new ArrayList<GrantedAuthority>();
 
-        for (Iterator iterator = grantedRoles.iterator(); iterator.hasNext();) {
-            String role = (String) iterator.next();
-
-            for (Iterator grantedIterator = granted.iterator(); grantedIterator.hasNext();) {
+    	final Iterator<GrantedAuthority> iterator = grantedRoles.iterator();
+        while ( iterator.hasNext()) {
+        	
+            String role = iterator.next().getAuthority();
+            
+            final Iterator<GrantedAuthority> grantedIterator = granted.iterator();
+            while ( grantedIterator.hasNext()) {
                 GrantedAuthority authority = (GrantedAuthority) grantedIterator.next();
 
                 if (authority.getAuthority().equals(role)) {
@@ -221,15 +220,14 @@ public class IfRole {
         final Collection<GrantedAuthority> granted = getPrincipalAuthorities();
 
         if ((null != role) && !"".equals(role)) {
-            Set grantedCopy = retainAll(granted, parseAuthoritiesString(role));
+        	final Collection<GrantedAuthority> grantedCopy = retainAll(granted, parseAuthoritiesString(role));
             if (grantedCopy.isEmpty()) {
                 return false;
             }
         }
 
         if ((null != ifNotGranted) && !"".equals(ifNotGranted)) {
-            Set grantedCopy = retainAll(granted, parseAuthoritiesString(ifNotGranted));
-
+        	final Collection<GrantedAuthority> grantedCopy = retainAll(granted, parseAuthoritiesString(ifNotGranted));
             if (!grantedCopy.isEmpty()) {
                 return false;
             }
@@ -238,11 +236,11 @@ public class IfRole {
         if ((null != ifAllGranted) && !"".equals(ifAllGranted)) {
             if (!granted.containsAll(parseAuthoritiesString(ifAllGranted))) {
                 return false;
-            }
+            } 
         }
 
         if ((null != ifAnyGranted) && !"".equals(ifAnyGranted)) {
-            Set grantedCopy = retainAll(granted, parseAuthoritiesString(ifAnyGranted));
+        	final Collection<GrantedAuthority> grantedCopy = retainAll(granted, parseAuthoritiesString(ifAnyGranted));
 
             if (grantedCopy.isEmpty()) {
                 return false;
