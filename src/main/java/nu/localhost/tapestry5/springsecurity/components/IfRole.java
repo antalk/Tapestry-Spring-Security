@@ -27,7 +27,7 @@ import org.apache.tapestry5.Block;
 import org.apache.tapestry5.annotations.Parameter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 
@@ -89,7 +89,7 @@ public class IfRole {
             return Collections.EMPTY_LIST;
         }
 
-        Collection<GrantedAuthority> granted = currentUser.getAuthorities();
+        Collection<GrantedAuthority> granted = (Collection<GrantedAuthority>) currentUser.getAuthorities();
         return granted;
     }
 
@@ -126,7 +126,7 @@ public class IfRole {
             role = StringUtils.replace(role, "\n", "");
             role = StringUtils.replace(role, "\f", "");
 
-            requiredAuthorities.add(new GrantedAuthorityImpl(role));
+            requiredAuthorities.add(new SimpleGrantedAuthority(role));
         }
 
         return requiredAuthorities;
@@ -141,7 +141,7 @@ public class IfRole {
      * We need to manually iterate over both collections, because the granted
      * authorities might not implement {@link Object#equals(Object)} and
      * {@link Object#hashCode()} in the same way as {@link
-     * GrantedAuthorityImpl}, thereby invalidating {@link
+     * SimpleGrantedAuthority}, thereby invalidating {@link
      * Collection#retainAll(java.util.Collection)} results.
      * </p>
      * 
@@ -163,7 +163,7 @@ public class IfRole {
      *            <strong>not</strong> return <code>null</code> from {@link
      *            org.springframework.security.GrantedAuthority#getAuthority()}.
      * @param required
-     *            A {@link Set} of {@link GrantedAuthorityImpl}s that have been
+     *            A {@link Set} of {@link SimpleGrantedAuthority}s that have been
      *            built using ifAny, ifAll or ifNotGranted.
      * 
      * @return A set containing only the common authorities between <var>granted</var>

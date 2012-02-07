@@ -70,7 +70,6 @@ import org.springframework.security.core.userdetails.memory.UserAttributeEditor;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
-import org.springframework.security.web.access.intercept.RequestKey;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.RememberMeServices;
@@ -83,7 +82,7 @@ import org.springframework.security.web.authentication.rememberme.RememberMeAuth
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
-import org.springframework.security.web.util.AntUrlPathMatcher;
+import org.springframework.security.web.util.RequestMatcher;
 
 /**
  * This module is automatically included as part of the Tapestry IoC Registry,
@@ -161,7 +160,7 @@ public class SecurityModule {
         configuration.add(
                 "springSecurityHttpSessionContextIntegrationFilter",
                 httpSessionContextIntegrationFilter,
-                "before:springSecurity*" );
+                "before:ResteasyRequestFilter","before:springSecurity*" );
         configuration.add( "springSecurityAuthenticationProcessingFilter", authenticationProcessingFilter );
         configuration.add( "springSecurityRememberMeProcessingFilter", rememberMeProcessingFilter );
         configuration.add(
@@ -188,9 +187,9 @@ public class SecurityModule {
             final Collection<RequestInvocationDefinition> contributions ) throws Exception {
 
         FilterSecurityInterceptor interceptor = new FilterSecurityInterceptor();
-        LinkedHashMap<RequestKey, Collection<ConfigAttribute>> requestMap = convertCollectionToLinkedHashMap( contributions );
+        LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = convertCollectionToLinkedHashMap( contributions );
         DefaultFilterInvocationSecurityMetadataSource source =
-                new DefaultFilterInvocationSecurityMetadataSource(new AntUrlPathMatcher( true ),requestMap );
+                new DefaultFilterInvocationSecurityMetadataSource(requestMap);
         interceptor.setAccessDecisionManager( accessDecisionManager );
         interceptor.setAlwaysReauthenticate( false );
         interceptor.setAuthenticationManager( manager );
@@ -200,13 +199,12 @@ public class SecurityModule {
         return new HttpServletRequestFilterWrapper( interceptor );
     }
 
-    static LinkedHashMap<RequestKey, Collection<ConfigAttribute>> convertCollectionToLinkedHashMap(
+    static LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> convertCollectionToLinkedHashMap(
             Collection<RequestInvocationDefinition> urls ) {
 
-        LinkedHashMap<RequestKey, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<RequestKey, Collection<ConfigAttribute>>();
+        LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>();
         for ( RequestInvocationDefinition url : urls ) {
-
-            requestMap.put( url.getRequestKey(), url.getConfigAttributeDefinition() );
+            requestMap.put( url.getRequestMatcher(), url.getConfigAttributeDefinition() );
         }
         return requestMap;
     }
@@ -260,9 +258,7 @@ public class SecurityModule {
             @SpringSecurityServices final RememberMeServices rememberMe,
             @SpringSecurityServices final AuthenticationManager authManager ) throws Exception {
 
-        RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter();
-        filter.setRememberMeServices( rememberMe );
-        filter.setAuthenticationManager( authManager );
+        final RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter(authManager,rememberMe);
         filter.afterPropertiesSet();
         return new HttpServletRequestFilterWrapper( filter );
     }
@@ -278,12 +274,12 @@ public class SecurityModule {
             @Inject @Value( "${spring-security.anonymous.attribute}" ) final String anonymousAttr,
             @Inject @Value( "${spring-security.anonymous.key}" ) final String anonymousKey ) throws Exception {
 
-        AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
-        filter.setKey( anonymousKey );
-        UserAttributeEditor attrEditor = new UserAttributeEditor();
+        
+        final UserAttributeEditor attrEditor = new UserAttributeEditor();
         attrEditor.setAsText( anonymousAttr );
-        UserAttribute attr = (UserAttribute) attrEditor.getValue();
-        filter.setUserAttribute( attr );
+        final UserAttribute attr = (UserAttribute) attrEditor.getValue();
+        
+        final AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter(anonymousKey,"anonymousUser",attr.getAuthorities());
         filter.afterPropertiesSet();
         return new HttpServletRequestFilterWrapper( filter );
     }
@@ -293,9 +289,7 @@ public class SecurityModule {
             final UserDetailsService userDetailsService,
             @Inject @Value( "${spring-security.rememberme.key}" ) final String rememberMeKey ) {
 
-        TokenBasedRememberMeServices rememberMe = new TokenBasedRememberMeServices();
-        rememberMe.setUserDetailsService( userDetailsService );
-        rememberMe.setKey( rememberMeKey );
+        final TokenBasedRememberMeServices rememberMe = new TokenBasedRememberMeServices(rememberMeKey,userDetailsService);
         return rememberMe;
     }
 
@@ -304,9 +298,7 @@ public class SecurityModule {
             final UserDetailsService userDetailsService,
             @Inject @Value( "${spring-security.rememberme.key}" ) final String rememberMeKey ) throws Exception {
 
-        TokenBasedRememberMeServices rememberMe = new TokenBasedRememberMeServices();
-        rememberMe.setUserDetailsService( userDetailsService );
-        rememberMe.setKey( rememberMeKey );
+        final TokenBasedRememberMeServices rememberMe = new TokenBasedRememberMeServices(rememberMeKey,userDetailsService);
         rememberMe.afterPropertiesSet();
         return rememberMe;
     }
@@ -325,8 +317,7 @@ public class SecurityModule {
     public static AuthenticationManager buildAuthenticationManager( final List<AuthenticationProvider> providers )
             throws Exception {
 
-        ProviderManager manager = new ProviderManager();
-        manager.setProviders( providers );
+        final ProviderManager manager = new ProviderManager(providers);
         manager.afterPropertiesSet();
         return manager;
     }
@@ -335,8 +326,7 @@ public class SecurityModule {
     public final AuthenticationProvider buildAnonymousAuthenticationProvider(
             @Inject @Value( "${spring-security.anonymous.key}" ) final String anonymousKey ) throws Exception {
 
-        AnonymousAuthenticationProvider provider = new AnonymousAuthenticationProvider();
-        provider.setKey( anonymousKey );
+        final AnonymousAuthenticationProvider provider = new AnonymousAuthenticationProvider(anonymousKey);
         provider.afterPropertiesSet();
         return provider;
     }
@@ -345,8 +335,7 @@ public class SecurityModule {
     public final AuthenticationProvider buildRememberMeAuthenticationProvider(
             @Inject @Value( "${spring-security.rememberme.key}" ) final String rememberMeKey ) throws Exception {
 
-        RememberMeAuthenticationProvider provider = new RememberMeAuthenticationProvider();
-        provider.setKey( rememberMeKey );
+        final RememberMeAuthenticationProvider provider = new RememberMeAuthenticationProvider(rememberMeKey);
         provider.afterPropertiesSet();
         return provider;
     }
@@ -357,7 +346,7 @@ public class SecurityModule {
             final PasswordEncoder passwordEncoder,
             final SaltSourceService saltSource ) throws Exception {
 
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        final DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService( userDetailsService );
         provider.setPasswordEncoder( passwordEncoder );
         provider.setSaltSource( saltSource );
@@ -377,15 +366,12 @@ public class SecurityModule {
     @Marker( SpringSecurityServices.class )
     public final AccessDecisionManager buildAccessDecisionManager( final List<AccessDecisionVoter> voters )
             throws Exception {
-
-        AffirmativeBased manager = new AffirmativeBased();
-        manager.setDecisionVoters( voters );
+        final AffirmativeBased manager = new AffirmativeBased(voters);
         manager.afterPropertiesSet();
         return manager;
     }
 
     public final void contributeAccessDecisionManager( final OrderedConfiguration<AccessDecisionVoter> configuration ) {
-
         configuration.add( "RoleVoter", new RoleVoter() );
     }
 
@@ -394,8 +380,7 @@ public class SecurityModule {
             @SpringSecurityServices final AccessDecisionManager accessDecisionManager,
             @SpringSecurityServices final AuthenticationManager authenticationManager ) throws Exception {
 
-        StaticSecurityChecker checker = new StaticSecurityChecker();
-
+        final StaticSecurityChecker checker = new StaticSecurityChecker();
         checker.setAccessDecisionManager( accessDecisionManager );
         checker.setAuthenticationManager( authenticationManager );
         checker.afterPropertiesSet();
@@ -407,8 +392,7 @@ public class SecurityModule {
             @Inject @Value( "${spring-security.loginform.url}" ) final String loginFormUrl,
             @Inject @Value( "${spring-security.force.ssl.login}" ) final String forceHttps ) throws Exception {
 
-    	LoginUrlAuthenticationEntryPoint entryPoint = new LoginUrlAuthenticationEntryPoint();
-        entryPoint.setLoginFormUrl( loginFormUrl );
+    	final LoginUrlAuthenticationEntryPoint entryPoint = new LoginUrlAuthenticationEntryPoint(loginFormUrl);
         entryPoint.afterPropertiesSet();
         boolean forceSSL = Boolean.parseBoolean( forceHttps );
         entryPoint.setForceHttps( forceSSL );

@@ -3,7 +3,6 @@ package nu.localhost.testsite.utils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.tapestry5.services.Request;
 import org.easymock.EasyMock;

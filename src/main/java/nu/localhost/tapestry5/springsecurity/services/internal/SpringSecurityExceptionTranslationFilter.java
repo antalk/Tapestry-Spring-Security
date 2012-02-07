@@ -25,7 +25,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import nu.localhost.tapestry5.springsecurity.util.DefaultThrowableAnalyzer;
 
 import org.slf4j.Logger;
@@ -72,13 +71,13 @@ public class SpringSecurityExceptionTranslationFilter extends GenericFilterBean 
     private ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();
 
     private RequestCache requestCache = new HttpSessionRequestCache();
+    
+    @Override
+    public void afterPropertiesSet() throws ServletException {
+    	Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint must be specified");
+    }
 
     //~ Methods ========================================================================================================
-
-    @Override
-    public void afterPropertiesSet() {
-        Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint must be specified");
-    }
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {

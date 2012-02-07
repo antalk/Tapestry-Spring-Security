@@ -8,11 +8,12 @@
     <version>4.0.0-SNAPSHOT</version>
     <name>Spring Security services for Tapestry</name>
     <inceptionYear>2007</inceptionYear>
-    <description>Built for Tapestry 5.3.x</description>
+    <description>Built for Tapestry 5.3.2</description>
     <url>http://www.localhost.nu/java/tapestry-spring-security</url>
 	
     <organization>
-        <name>Robin Helgelin</name>
+    	<name>Antalk</name>
+    	<url>https://github.com/antalk</url>
     </organization>
 	
     <licenses>
@@ -24,8 +25,8 @@
     </licenses>
 	
     <scm>
-        <connection>scm:svn:http://www.localhost.nu/svn/public/tapestry-spring-security</connection>
-        <url>http://www.localhost.nu/svn/public/tapestry-spring-security</url>
+    	<connection>scm:git:https://github.com/antalk/Tapestry-Spring-Security</connection>
+    	<url>scm:git:https://github.com/antalk/Tapestry-Spring-Security</url>
     </scm>
 	
     <developers>
@@ -73,19 +74,48 @@
 		<!-- Spring security -->
         <dependency>
             <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
-            <version>${spring-security-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
-            <version>${spring-security-version}</version>
-        </dependency>
-        
-        <dependency>
-          <groupId>org.springframework</groupId>
-          <artifactId>spring-web</artifactId>
-		  <version>${spring-release-version}</version>
+            <version>${spring-version}</version>
+            <exclusions>
+            	<exclusion>
+            		<groupId>org.springframework</groupId>
+            		<artifactId>spring-tx</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>org.springframework</groupId>
+            		<artifactId>spring-web</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>spring-expression</artifactId>
+            		<groupId>org.springframework</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>spring-aop</artifactId>
+            		<groupId>org.springframework</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>spring-context</artifactId>
+            		<groupId>org.springframework</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>spring-jdbc</artifactId>
+            		<groupId>org.springframework</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>spring-beans</artifactId>
+            		<groupId>org.springframework</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>spring-core</artifactId>
+            		<groupId>org.springframework</groupId>
+            	</exclusion>
+            </exclusions>
+		</dependency>        
+		
+		<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring-version}</version>
         </dependency>
 
 		<!-- Servlets API -->
@@ -120,7 +150,16 @@
     <build>
         <finalName>tapestry5.3-springsecurity</finalName>
         <plugins>
+        
+        	<!--  default 2.4 does not allow to deploy using -DaltDeploymentRepository -->
+        	<plugin>
+        	    <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.7</version>
+        	</plugin>
+        
             <plugin>
+            
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
@@ -171,16 +210,6 @@
                 </executions>
             </plugin>
         </plugins>
-	
-
-	    <!-- beta 3 for ftp directory support -->
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ftp</artifactId>
-                <version>1.0-beta-4</version>
-            </extension>
-        </extensions>
     </build>
 
     <reporting>
@@ -242,17 +271,6 @@
 
     <repositories>
         <repository>
-            <id>tapestry.snapshots</id>
-            <url>http://tapestry.formos.com/maven-snapshot-repository</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-
-        <repository>
             <id>spring-milestone</id>
             <name>Spring Portfolio Milestone Repository</name>
             <url>http://s3.amazonaws.com/maven.springframework.org/milestone</url>
@@ -282,27 +300,12 @@
         </pluginRepository>
     </pluginRepositories>
 
-    <distributionManagement>
-        <site>
-            <id>tapestry.spring.security.site</id>
-            <url>ftp://surr.localhost.nu/www.localhost.nu/java/tapestry-spring-security</url>
-        </site>
-        <repository>
-            <id>tapestry.spring.security</id>
-            <url>ftp://surr.localhost.nu/www.localhost.nu/java/mvn</url>
-        </repository>
-        <snapshotRepository>
-            <id>tapestry.spring.security.snapshot</id>
-            <url>ftp://surr.localhost.nu/www.localhost.nu/java/mvn-snapshot</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <properties>
-    	<tapestry-release-version>5.3.1</tapestry-release-version>
-    	<spring-security-version>3.0.2.RELEASE</spring-security-version>
+    	<tapestry-release-version>5.3.2</tapestry-release-version>
+    	<spring-version>3.1.0.RELEASE</spring-version>
 
-        <spring-release-version>3.0.2.RELEASE</spring-release-version>
-        <cobertura-plugin-version>2.1</cobertura-plugin-version>
+    	<spring-release-version>3.1.0.RELEASE</spring-release-version>
+    	<cobertura-plugin-version>2.1</cobertura-plugin-version>
         <testng-release-version>5.1</testng-release-version>
     </properties>
 </project>

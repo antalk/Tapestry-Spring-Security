@@ -1,7 +1,6 @@
 package nu.localhost.tests;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,11 +16,11 @@ import javax.servlet.http.HttpSessionContext;
 import junit.framework.TestCase;
 import nu.localhost.testsite.utils.MockFactory;
 
-import org.apache.http.cookie.CookiePathComparator;
-import org.apache.tapestry5.dom.Document;
 import org.apache.tapestry5.internal.test.TestableResponse;
 import org.apache.tapestry5.test.PageTester;
 import org.easymock.EasyMock;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
+import org.springframework.security.web.savedrequest.SavedRequest;
 
 public class SecuredPageTest extends TestCase {
 	
@@ -30,8 +29,14 @@ public class SecuredPageTest extends TestCase {
 	
 	@Override
 	protected void setUp() throws Exception {
+		EasyMock.reset(MockFactory.getInstance().getMockedObjects());
 		internalSession = new MySession();
 		super.setUp();
+	}
+	
+	@Override
+	protected void tearDown() throws Exception {
+		EasyMock.reset(MockFactory.getInstance().getMockedObjects());
 	}
 	
 	
@@ -44,7 +49,7 @@ public class SecuredPageTest extends TestCase {
         HttpServletResponse mockResponse = MockFactory.getInstance().getMockedServletResponse();
         
         
-        EasyMock.expect(mockRequest.getCookies()).andReturn(new Cookie[] {}).atLeastOnce();
+        EasyMock.expect(mockRequest.getCookies()).andReturn(new Cookie[] {}).anyTimes();
         EasyMock.expect(mockRequest.getHeaderNames()).andReturn(new Vector<String>().elements());
         EasyMock.expect(mockRequest.getLocales()).andReturn(new Vector<String>().elements());
         EasyMock.expect(mockRequest.getParameterMap()).andReturn(new HashMap<String, Object>());
@@ -83,7 +88,7 @@ public class SecuredPageTest extends TestCase {
         EasyMock.verify(MockFactory.getInstance().getMockedObjects());
         EasyMock.reset(MockFactory.getInstance().getMockedObjects());
         
-        assertEquals("DefaultSavedRequest[http://localhost?]",internalSession.getAttribute("SPRING_SECURITY_SAVED_REQUEST_KEY").toString());
+        assertEquals("DefaultSavedRequest[http://localhost?]",internalSession.getAttribute("SPRING_SECURITY_SAVED_REQUEST").toString());
 	}
 	
 	private class MySession implements HttpSession {

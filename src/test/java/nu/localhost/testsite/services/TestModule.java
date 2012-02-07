@@ -6,11 +6,9 @@ import nu.localhost.tapestry5.springsecurity.services.SecurityModule;
 import nu.localhost.testsite.utils.MockFactory;
 
 import org.apache.tapestry5.SymbolConstants;
-import org.apache.tapestry5.ioc.Configuration;
 import org.apache.tapestry5.ioc.MappedConfiguration;
 import org.apache.tapestry5.ioc.OrderedConfiguration;
 import org.apache.tapestry5.ioc.annotations.SubModule;
-import org.apache.tapestry5.services.LibraryMapping;
 import org.apache.tapestry5.services.Request;
 import org.apache.tapestry5.services.RequestFilter;
 import org.apache.tapestry5.services.RequestGlobals;

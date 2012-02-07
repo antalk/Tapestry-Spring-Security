@@ -21,7 +21,8 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.web.access.intercept.RequestKey;
+import org.springframework.security.web.util.AntPathRequestMatcher;
+import org.springframework.security.web.util.RequestMatcher;
 
 /**
  * Straight forward mapping definition of HttpRequestURIs to intercept by
@@ -32,11 +33,11 @@ import org.springframework.security.web.access.intercept.RequestKey;
  */
 public class RequestInvocationDefinition {
 
-    private RequestKey requestKey;
+    private RequestMatcher requestMatcher;
     private List<ConfigAttribute> configAttributes;
 
-    public RequestInvocationDefinition(String key, String roles) {
-        this.requestKey = new RequestKey(key);
+    public RequestInvocationDefinition(String pattern, String roles,Long id) {
+        this.requestMatcher = new AntPathRequestMatcher(pattern);
 		String[] allAttrs = StringUtils.stripAll(
                 StringUtils.splitPreserveAllTokens(roles, ',')
             );
@@ -47,15 +48,15 @@ public class RequestInvocationDefinition {
 
     }
 
-    public RequestKey getRequestKey() {
-        return requestKey;
-    }
+    public RequestMatcher getRequestMatcher() {
+		return requestMatcher;
+	}
 
-    public void setRequestKey(RequestKey requestKey) {
-        this.requestKey = requestKey;
-    }
+	public void setRequestMatcher(RequestMatcher requestMatcher) {
+		this.requestMatcher = requestMatcher;
+	}
 
-    public List<ConfigAttribute> getConfigAttributeDefinition() {
+	public List<ConfigAttribute> getConfigAttributeDefinition() {
         return configAttributes;
     }
 
