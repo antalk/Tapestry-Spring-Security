@@ -19,8 +19,6 @@ import nu.localhost.testsite.utils.MockFactory;
 import org.apache.tapestry5.internal.test.TestableResponse;
 import org.apache.tapestry5.test.PageTester;
 import org.easymock.EasyMock;
-import org.springframework.security.web.savedrequest.DefaultSavedRequest;
-import org.springframework.security.web.savedrequest.SavedRequest;
 
 public class SecuredPageTest extends TestCase {
 	
