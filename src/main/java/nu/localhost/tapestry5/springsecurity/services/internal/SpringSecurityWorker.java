@@ -23,6 +23,7 @@ import org.apache.tapestry5.ComponentResources;
 import org.apache.tapestry5.annotations.BeginRender;
 import org.apache.tapestry5.annotations.CleanupRender;
 import org.apache.tapestry5.model.MutableComponentModel;
+import org.apache.tapestry5.plastic.FieldHandle;
 import org.apache.tapestry5.plastic.MethodAdvice;
 import org.apache.tapestry5.plastic.MethodInvocation;
 import org.apache.tapestry5.plastic.PlasticClass;
@@ -111,6 +112,8 @@ public class SpringSecurityWorker implements ComponentClassTransformWorker2 {
     private void transformMethod(final PlasticClass plasticClass, final PlasticMethod method) {
 
         final PlasticField tokenFieldInstance = plasticClass.introduceField(InterceptorStatusToken.class,"_$token");
+        final FieldHandle tokenFieldHandle = tokenFieldInstance.getHandle();
+        
         
         // Attribute definition
         final Secured annotation = method.getAnnotation(Secured.class);
@@ -123,11 +126,11 @@ public class SpringSecurityWorker implements ComponentClassTransformWorker2 {
         	public void advise(MethodInvocation invocation) {
         		
         	    InterceptorStatusToken statusTokenVal = secChecker.checkBefore(confAttrHolder);
-        	    tokenFieldInstance.getHandle().set(invocation.getInstance(), statusTokenVal);
+        	    tokenFieldHandle.set(invocation.getInstance(), statusTokenVal);
                 
                 invocation.proceed();
 
-                InterceptorStatusToken tokenFieldValue = (InterceptorStatusToken) tokenFieldInstance.getHandle().get(invocation.getInstance());
+                InterceptorStatusToken tokenFieldValue = (InterceptorStatusToken) tokenFieldHandle.get(invocation.getInstance());
                 secChecker.checkAfter(tokenFieldValue, null);
             }
         };

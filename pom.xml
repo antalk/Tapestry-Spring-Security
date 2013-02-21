@@ -5,7 +5,7 @@
     <groupId>nu.localhost.tapestry</groupId>
     <artifactId>tapestry-spring-security</artifactId>
     <packaging>jar</packaging>
-    <version>4.1.0-SNAPSHOT</version>
+    <version>4.1.1</version>
     <name>Spring Security services for Tapestry</name>
     <inceptionYear>2007</inceptionYear>
     <description>Built for Tapestry 5.3.6</description>

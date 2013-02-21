@@ -14,6 +14,8 @@ import org.apache.tapestry5.services.RequestFilter;
 import org.apache.tapestry5.services.RequestGlobals;
 import org.apache.tapestry5.services.RequestHandler;
 import org.apache.tapestry5.services.Response;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.TestingAuthenticationProvider;
 
 @SubModule(SecurityModule.class)
 public class TestModule {
@@ -45,4 +47,9 @@ public class TestModule {
         };
         config.add("EnsureNonNullHttpRequestAndResponse", filter,"before:*");
     } 
+    
+    //@Marker(SpringSecurityServices.class)
+	public static void contributeAuthenticationManager(final OrderedConfiguration<AuthenticationProvider> configuration) {
+    	configuration.add("test", new TestingAuthenticationProvider());
+    }
 }
