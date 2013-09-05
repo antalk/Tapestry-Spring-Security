@@ -1,0 +1,12 @@
+<html xmlns:t="http://tapestry.apache.org/schema/tapestry_5_1_0.xsd">
+	<t:security.ifRole t:role="GUEST">
+		Welcome guest user
+	</t:security.ifRole>
+	
+	<t:security.ifRole t:role="ADMIN">
+		Welcome back administrator
+	</t:security.ifRole>
+	
+	
+	
+</html>

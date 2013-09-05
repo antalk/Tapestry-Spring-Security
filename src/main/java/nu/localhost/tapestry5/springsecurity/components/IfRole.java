@@ -27,7 +27,7 @@ import org.apache.tapestry5.Block;
 import org.apache.tapestry5.annotations.Parameter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 
@@ -44,7 +44,7 @@ public class IfRole {
      * If the logged in user matches this role, then the body of the IfRole component is rendered. If false, the body is
      * omitted.  This is retained for backward compatibility, and corresponds to a single entry in ifAnyGranted
      */
-    @Parameter(required = false, defaultPrefix = "literal", principal=true)
+    @Parameter(required = false, defaultPrefix = "literal")
     private String role;
 
     /**
@@ -124,7 +124,7 @@ public class IfRole {
             role = StringUtils.replace(role, "\n", "");
             role = StringUtils.replace(role, "\f", "");
 
-            requiredAuthorities.add(new GrantedAuthorityImpl(role));
+            requiredAuthorities.add(new SimpleGrantedAuthority(role));
         }
         return requiredAuthorities;
     }
@@ -169,10 +169,16 @@ public class IfRole {
      */
     
     private Collection<GrantedAuthority> retainAll(final Collection<GrantedAuthority> granted, final Collection<GrantedAuthority> required) {
-    	Collection<GrantedAuthority> grantedRoles = authoritiesToRoles(granted);
-    	Collection<GrantedAuthority> requiredRoles = authoritiesToRoles(required);
-        grantedRoles.retainAll(requiredRoles);
-
+    	Collection<GrantedAuthority> grantedRoles = new ArrayList<GrantedAuthority>();
+    	for (GrantedAuthority auth: granted) {
+    		for (GrantedAuthority req: required) {
+    			if (req.getAuthority().equals(auth.getAuthority())) {
+    				grantedRoles.add(auth);
+    				break;
+    			}
+    		}
+    	}
+    	
         return rolesToAuthorities(grantedRoles, granted);
     }
 
