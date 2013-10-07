@@ -1,0 +1,12 @@
+<html xmlns:t="http://tapestry.apache.org/schema/tapestry_5_1_0.xsd">
+	<t:security.ifRole ifAllGranted="GROUP1">
+		Welcome group1
+		<t:parameter name="else">
+			Hello unknown user
+		</t:parameter>
+	</t:security.ifRole>
+	
+	
+	
+	
+</html>

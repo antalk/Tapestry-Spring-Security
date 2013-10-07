@@ -27,7 +27,6 @@ import org.apache.tapestry5.Block;
 import org.apache.tapestry5.annotations.Parameter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 
@@ -124,11 +123,45 @@ public class IfRole {
             role = StringUtils.replace(role, "\n", "");
             role = StringUtils.replace(role, "\f", "");
 
-            requiredAuthorities.add(new SimpleGrantedAuthority(role));
+            requiredAuthorities.add(new ComparableAuthority(role));
         }
         return requiredAuthorities;
     }
 
+    private class ComparableAuthority implements GrantedAuthority {
+    	
+		private static final long serialVersionUID = 1442316479621921366L;
+		
+		private String _role;
+    	
+    	public ComparableAuthority(String role) {
+			this._role = role;
+		}
+    	@Override
+    	public String getAuthority() {
+    		return _role;
+    	}
+    	
+    	@Override
+    	public boolean equals(Object obj) {
+    		if (this == obj) {
+                return true;
+            }
+    		
+    		if (obj instanceof String) {
+                return obj.equals(this.getAuthority());
+            }
+
+            if (obj instanceof GrantedAuthority) {
+                final GrantedAuthority attr = (GrantedAuthority) obj;
+                return this.getAuthority().equals(attr.getAuthority());
+            }
+
+            return false;
+    	}
+    }
+    
+    
     /**
      * Find the common authorities between the current authentication's {@link
      * GrantedAuthority} and the ones that have been specified in the tag's
@@ -181,7 +214,8 @@ public class IfRole {
     	
         return rolesToAuthorities(grantedRoles, granted);
     }
-
+    
+  
     /**
      * @param grantedRoles
      * @param granted
