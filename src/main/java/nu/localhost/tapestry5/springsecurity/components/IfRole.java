@@ -76,7 +76,7 @@ public class IfRole {
 
     private boolean test;
 
-    private Collection<GrantedAuthority> getPrincipalAuthorities() {
+    private Collection<? extends GrantedAuthority> getPrincipalAuthorities() {
         Authentication currentUser = null;
         currentUser = SecurityContextHolder.getContext().getAuthentication();
 
@@ -88,9 +88,10 @@ public class IfRole {
             return Collections.emptyList();
         }
 
-        return (Collection<GrantedAuthority>) currentUser.getAuthorities();
+        return (Collection<? extends GrantedAuthority>) currentUser.getAuthorities();
     }
-
+    
+    /* not used anymore
     private Collection<GrantedAuthority> authoritiesToRoles(Collection<GrantedAuthority> c) {
     	Collection<GrantedAuthority> target = new ArrayList<GrantedAuthority>();
 
@@ -106,7 +107,7 @@ public class IfRole {
         }
 
         return target;
-    }
+    }*/
 
     private Collection<GrantedAuthority> parseAuthoritiesString(String authorizationsString) {
         final Collection<GrantedAuthority> requiredAuthorities = new ArrayList<GrantedAuthority>();
@@ -201,7 +202,7 @@ public class IfRole {
      * 
      */
     
-    private Collection<GrantedAuthority> retainAll(final Collection<GrantedAuthority> granted, final Collection<GrantedAuthority> required) {
+    private Collection<? extends GrantedAuthority> retainAll(final Collection<? extends GrantedAuthority> granted, final Collection<GrantedAuthority> required) {
     	Collection<GrantedAuthority> grantedRoles = new ArrayList<GrantedAuthority>();
     	for (GrantedAuthority auth: granted) {
     		for (GrantedAuthority req: required) {
@@ -222,15 +223,15 @@ public class IfRole {
      * @return a Set of Authorities corresponding to the roles in the grantedRoles
      * that are also in the granted Set of Authorities
      */
-    private Collection<GrantedAuthority> rolesToAuthorities(Collection<GrantedAuthority> grantedRoles, Collection<GrantedAuthority> granted) {
+    private Collection<? extends GrantedAuthority> rolesToAuthorities(Collection<? extends GrantedAuthority> grantedRoles, Collection<? extends GrantedAuthority> granted) {
     	Collection<GrantedAuthority> target = new ArrayList<GrantedAuthority>();
 
-    	final Iterator<GrantedAuthority> iterator = grantedRoles.iterator();
+    	final Iterator<? extends GrantedAuthority> iterator = grantedRoles.iterator();
         while ( iterator.hasNext()) {
         	
             String role = iterator.next().getAuthority();
             
-            final Iterator<GrantedAuthority> grantedIterator = granted.iterator();
+            final Iterator<? extends GrantedAuthority> grantedIterator = granted.iterator();
             while ( grantedIterator.hasNext()) {
                 GrantedAuthority authority = (GrantedAuthority) grantedIterator.next();
 
@@ -257,17 +258,17 @@ public class IfRole {
             return false;
         }
 
-        final Collection<GrantedAuthority> granted = getPrincipalAuthorities();
+        final Collection<? extends GrantedAuthority> granted = getPrincipalAuthorities();
 
         if ((null != role) && !"".equals(role)) {
-        	final Collection<GrantedAuthority> grantedCopy = retainAll(granted, parseAuthoritiesString(role));
+        	final Collection<? extends GrantedAuthority> grantedCopy = retainAll(granted, parseAuthoritiesString(role));
             if (grantedCopy.isEmpty()) {
                 return false;
             }
         }
 
         if ((null != ifNotGranted) && !"".equals(ifNotGranted)) {
-        	final Collection<GrantedAuthority> grantedCopy = retainAll(granted, parseAuthoritiesString(ifNotGranted));
+        	final Collection<? extends GrantedAuthority> grantedCopy = retainAll(granted, parseAuthoritiesString(ifNotGranted));
             if (!grantedCopy.isEmpty()) {
                 return false;
             }
@@ -280,7 +281,7 @@ public class IfRole {
         }
 
         if ((null != ifAnyGranted) && !"".equals(ifAnyGranted)) {
-        	final Collection<GrantedAuthority> grantedCopy = retainAll(granted, parseAuthoritiesString(ifAnyGranted));
+        	final Collection<? extends GrantedAuthority> grantedCopy = retainAll(granted, parseAuthoritiesString(ifAnyGranted));
 
             if (grantedCopy.isEmpty()) {
                 return false;

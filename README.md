@@ -1,8 +1,15 @@
 Tapestry Spring Security
 ======
 
-A Tapestry 5.3.6 module based on the existing Tapestry Spring Security from http://www.localhost.nu/java/tapestry-spring-security/ but adapted to work with Tapestry 5.3.x
+Version 4.2.0
 
-It depends on Tapestry 5.3.6 and Spring-security-web 3.1.0 libraries
+A Tapestry 5.3.7 module based on the existing Tapestry Spring Security from http://www.localhost.nu/java/tapestry-spring-security/ but adapted to work with Tapestry 5.3.x
 
+It depends on Tapestry 5.3.7 and Spring-Security 3.2.0 libraries.
 
+Older versions
+-----------
+
+Older version can be found in the binaries directory:
+
+	* 4.1.3 / Tapestry 5.3.7 & Spring-Security 3.1.0

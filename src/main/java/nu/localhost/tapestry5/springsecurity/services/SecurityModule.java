@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import nu.localhost.tapestry5.springsecurity.services.internal.HttpServletRequestFilterWrapper;
 import nu.localhost.tapestry5.springsecurity.services.internal.LogoutServiceImpl;
 import nu.localhost.tapestry5.springsecurity.services.internal.RequestFilterWrapper;
@@ -62,8 +64,8 @@ import org.springframework.security.authentication.AuthenticationTrustResolverIm
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.authentication.encoding.PasswordEncoder;
-import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.memory.UserAttribute;
 import org.springframework.security.core.userdetails.memory.UserAttributeEditor;
@@ -82,7 +84,7 @@ import org.springframework.security.web.authentication.rememberme.RememberMeAuth
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * This module is automatically included as part of the Tapestry IoC Registry,
@@ -99,7 +101,7 @@ public class SecurityModule {
         binder.bind( LogoutService.class, LogoutServiceImpl.class ).withMarker( SpringSecurityServices.class );
         binder.bind( AuthenticationTrustResolver.class, AuthenticationTrustResolverImpl.class ).withMarker(
                 SpringSecurityServices.class );
-        binder.bind( PasswordEncoder.class, PlaintextPasswordEncoder.class ).withMarker( SpringSecurityServices.class );
+        binder.bind( PasswordEncoder.class, StandardPasswordEncoder.class ).withMarker( SpringSecurityServices.class );
     }
 
     
@@ -238,8 +240,26 @@ public class SecurityModule {
         successHandler.setDefaultTargetUrl(targetUrl);
         successHandler.setAlwaysUseDefaultTargetUrl( Boolean.parseBoolean( alwaysUseTargetUrl ) );
         filter.setAuthenticationSuccessHandler( successHandler);
-		filter.setFilterProcessesUrl(targetUrl);
-        filter.setFilterProcessesUrl( authUrl );
+		filter.setRequiresAuthenticationRequestMatcher(new RequestMatcher() {
+			
+        	// copied from AbstractAuthenticationProcessingFilter
+			@Override
+			public boolean matches(HttpServletRequest request) {
+				String uri = request.getRequestURI();
+	            int pathParamIndex = uri.indexOf(';');
+
+	            if (pathParamIndex > 0) {
+	                // strip everything after the first semi-colon
+	                uri = uri.substring(0, pathParamIndex);
+	            }
+
+	            if ("".equals(request.getContextPath())) {
+	                return uri.endsWith(authUrl);
+	            }
+
+	            return uri.endsWith(request.getContextPath() + authUrl);
+			}
+		});
         filter.setRememberMeServices( rememberMeServices );		        
 
         filter.afterPropertiesSet();
