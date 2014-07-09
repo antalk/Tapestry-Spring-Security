@@ -8,6 +8,7 @@ import nu.localhost.testsite.utils.MockFactory;
 import org.apache.tapestry5.SymbolConstants;
 import org.apache.tapestry5.ioc.MappedConfiguration;
 import org.apache.tapestry5.ioc.OrderedConfiguration;
+import org.apache.tapestry5.ioc.ServiceBinder;
 import org.apache.tapestry5.ioc.annotations.SubModule;
 import org.apache.tapestry5.services.Request;
 import org.apache.tapestry5.services.RequestFilter;
@@ -16,10 +17,16 @@ import org.apache.tapestry5.services.RequestHandler;
 import org.apache.tapestry5.services.Response;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.TestingAuthenticationProvider;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 @SubModule(SecurityModule.class)
 public class TestModule {
 
+	
+	public static void bind( final ServiceBinder binder ) {
+		binder.bind(UserDetailsService.class,DummyUserDetailService.class);
+	}
+	
 	
 	public static void contributeApplicationDefaults(
 			final MappedConfiguration<String, String> configuration) {

@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import nu.localhost.tapestry5.springsecurity.services.internal.HttpServletRequestFilterWrapper;
@@ -45,6 +46,7 @@ import org.apache.tapestry5.ioc.annotations.InjectService;
 import org.apache.tapestry5.ioc.annotations.Marker;
 import org.apache.tapestry5.ioc.annotations.Primary;
 import org.apache.tapestry5.ioc.annotations.Value;
+import org.apache.tapestry5.ioc.internal.util.TapestryException;
 import org.apache.tapestry5.ioc.services.ServiceOverride;
 import org.apache.tapestry5.services.HttpServletRequestFilter;
 import org.apache.tapestry5.services.LibraryMapping;
@@ -64,11 +66,11 @@ import org.springframework.security.authentication.AuthenticationTrustResolverIm
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.memory.UserAttribute;
 import org.springframework.security.core.userdetails.memory.UserAttributeEditor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
@@ -285,8 +287,13 @@ public class SecurityModule {
 
     @Marker( SpringSecurityServices.class )
     public static HttpServletRequestFilter buildSecurityContextHolderAwareRequestFilter() {
-
-        return new HttpServletRequestFilterWrapper( new SecurityContextHolderAwareRequestFilter() );
+    	SecurityContextHolderAwareRequestFilter scharf = new SecurityContextHolderAwareRequestFilter();
+    	try {
+			scharf.afterPropertiesSet();
+		} catch (ServletException e) {
+			throw new TapestryException("Could not initialize SecurityContextHolderAwareRequestFilter",e);
+		}
+        return new HttpServletRequestFilterWrapper(scharf);
     }
 
     @Marker( SpringSecurityServices.class )

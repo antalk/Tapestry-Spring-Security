@@ -1,7 +1,7 @@
 Tapestry Spring Security
 ======
 
-Version 4.2.0
+Version 4.2.1
 
 A Tapestry 5.3.7 module based on the existing Tapestry Spring Security from http://www.localhost.nu/java/tapestry-spring-security/ but adapted to work with Tapestry 5.3.x
 
